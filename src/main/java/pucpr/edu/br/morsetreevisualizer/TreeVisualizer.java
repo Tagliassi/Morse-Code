@@ -1,50 +1,40 @@
 package pucpr.edu.br.morsetreevisualizer;
 
+import Types.LinkedNode;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class TreeVisualizer {
 
-    static class Node {
-        char letter;
-        Node left, right;
-
-        Node(char letter) {
-            this.letter = letter;
-            this.left = null;
-            this.right = null;
-        }
-    }
-
     static class MorseBST {
-        private Node root = new Node(' ');
+        private LinkedNode<Character> root = new LinkedNode<Character>(' ');
 
         public void insert(char letter, String morseCode) {
-            Node current = root;
+            LinkedNode<Character> current = root;
             for (char symbol : morseCode.toCharArray()) {
                 if (symbol == '.') {
-                    if (current.left == null) current.left = new Node(' ');
+                    if (current.left == null) current.left = new LinkedNode<Character>(' ');
                     current = current.left;
                 } else if (symbol == '-') {
-                    if (current.right == null) current.right = new Node(' ');
+                    if (current.right == null) current.right = new LinkedNode<Character>(' ');
                     current = current.right;
                 }
             }
-            current.letter = letter;
+            current.value = letter;
         }
 
         public String decode(String morse) {
             StringBuilder result = new StringBuilder();
             String[] tokens = morse.trim().split(" ");
             for (String token : tokens) {
-                Node current = root;
-                for (char c : token.toCharArray()) {
+                LinkedNode<Character> current = root;
+                for (char c : token.trim().toCharArray()) {
                     if (c == '.') current = current.left;
                     else if (c == '-') current = current.right;
                     if (current == null) break;
                 }
-                result.append(current != null ? current.letter : '?');
+                result.append(current != null ? current.value : '?');
             }
             return result.toString();
         }
@@ -62,9 +52,9 @@ public class TreeVisualizer {
             return result.toString().trim();
         }
 
-        private String getMorseCodeForChar(Node node, char target, String path) {
+        private String getMorseCodeForChar(LinkedNode<Character> node, char target, String path) {
             if (node == null) return null;
-            if (node.letter == target) return path;
+            if (node.value == target) return path;
             String left = getMorseCodeForChar(node.left, target, path + ".");
             if (left != null) return left;
             return getMorseCodeForChar(node.right, target, path + "-");
@@ -74,7 +64,7 @@ public class TreeVisualizer {
             return getHeight(root);
         }
 
-        private int getHeight(Node node) {
+        private int getHeight(LinkedNode<Character> node) {
             if (node == null) return 0;
             return 1 + Math.max(getHeight(node.left), getHeight(node.right));
         }
@@ -87,11 +77,11 @@ public class TreeVisualizer {
             drawNode(gc, root, canvas.getWidth() / 2, 40, canvas.getWidth() / 4);
         }
 
-        private void drawNode(GraphicsContext gc, Node node, double x, double y, double xOffset) {
+        private void drawNode(GraphicsContext gc, LinkedNode<Character> node, double x, double y, double xOffset) {
             if (node == null) return;
 
             gc.strokeOval(x - 15, y - 15, 30, 30);
-            gc.strokeText(String.valueOf(node.letter), x - 5, y + 5);
+            gc.strokeText(String.valueOf(node.value), x - 5, y + 5);
 
             if (node.left != null) {
                 double newX = x - xOffset;
